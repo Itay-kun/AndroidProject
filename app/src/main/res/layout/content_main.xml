@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <EditText
+        android:id="@+id/etPhoneNumber"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="16dp"
+        android:hint="@string/phone_number"
+        android:inputType="phone" />
+
+    <EditText
+        android:id="@+id/etMessage"
+        app:layout_constraintTop_toBottomOf="@+id/etPhoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:hint="@string/sms_text"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/buttonDate"
+        app:layout_constraintTop_toBottomOf="@+id/etMessage"
+        android:background="#caa4a4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:textSize="14dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/date" />
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:textSize="16dp"
+        android:gravity="center_horizontal"
+        android:textAlignment="gravity"
+        android:hint="@string/choose_date"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonDate" />
+
+    <Button
+        android:id="@+id/buttonTime"
+        app:layout_constraintTop_toBottomOf="@+id/tvDate"
+        android:background="#caa4a4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:textSize="14dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/time" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:textSize="16dp"
+        android:gravity="center_horizontal"
+        android:textAlignment="gravity"
+        android:hint="@string/choose_time"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonTime" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/mRecyclerView"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        android:text="Sms list"
+        android:textSize="24sp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTime" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/mRecyclerView"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+        android:layout_height="wrap_content" />
+
+</android.support.constraint.ConstraintLayout>
