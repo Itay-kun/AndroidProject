@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
@@ -16,9 +15,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -39,15 +35,6 @@ public class MainActivity extends AppCompatActivity {
 
     private String[] smsScheduleList;
 
-    private EditText etPhoneNumber;
-    private EditText etMessage;
-    private TextView tvDate;
-    private TextView tvTime;
-    private Button buttonDate;
-    private Button buttonTime;
-    String phoneNo;
-    String message;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,14 +45,8 @@ public class MainActivity extends AppCompatActivity {
 
         requestSMSPermission();
 
-        recyclerView = (RecyclerView) findViewById(R.id.mRecyclerView);
-        etPhoneNumber = findViewById(R.id.etPhoneNumber);
-        etMessage = findViewById(R.id.etMessage);
+        recyclerView = findViewById(R.id.mRecyclerView);
 
-        buttonDate = findViewById(R.id.buttonDate);
-        buttonTime = findViewById(R.id.buttonTime);
-        tvDate = findViewById(R.id.tvDate);
-        tvTime = findViewById(R.id.tvTime);
 
         smsScheduleList = new String[9];
         for (int i = 0; i < smsScheduleList.length; i++) {
@@ -74,58 +55,42 @@ public class MainActivity extends AppCompatActivity {
 
 
         mAdapter = new ListAdapter(smsScheduleList);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(mLayoutManager);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(mAdapter);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!testSMSPermission()) {
-                    requestSMSPermission();
-                    return;
-                }
-                String part1 = "To: " + etPhoneNumber.getText().toString();
-                String part2 = "at: " + tvDate.getText().toString() + " " + tvTime.getText().toString();
-                String part3 = "message: " + etMessage.getText().toString();
-                for (int i = 0; i < smsScheduleList.length; i++) {
-                    if (smsScheduleList[i] == "") {
-                        smsScheduleList[i] = part1 + ", " + part2 + ", " + part3;
-                        mAdapter.notifyDataSetChanged();
-                        break;
-                    } else if (i == smsScheduleList.length - 1) {
-                        //TODO: add alert: "list is full"
-                        return;
-                    }
-                }
-                sendDelayedSMS();
-                return;
+                new SMSDialogFragment().show(getSupportFragmentManager(), "smsDialogFrag");
             }
         });
 
-        buttonDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DatePickerFragment newFragmentb = new DatePickerFragment();
-                newFragmentb.setTvDate(tvDate);
-                DialogFragment newFragment = newFragmentb;
-                newFragment.show(getSupportFragmentManager(), "datePicker");
-            }
-        });
 
-        buttonTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TimePickerFragment newFragmentb = new TimePickerFragment();
-                newFragmentb.setTvTime(tvTime);
-                DialogFragment newFragment = newFragmentb;
-                newFragment.show(getSupportFragmentManager(), "timePicker");
-            }
-        });
     }
+
+    //TODO:
+    void doIt(String phoneNumber, String date, String time, String message) {
+        if (!testSMSPermission()) {
+            requestSMSPermission();
+            return;
+        }
+        String part1 = "To: " + phoneNumber;
+        String part2 = "at: " + date + " " + time;
+        String part3 = "message: " + message;
+        for (int i = 0; i < smsScheduleList.length; i++) {
+            if (smsScheduleList[i].isEmpty()) {
+                smsScheduleList[i] = part1 + ", " + part2 + ", " + part3;
+                mAdapter.notifyDataSetChanged();
+                break;
+            }
+        }
+        sendDelayedSMS(phoneNumber, date, time, message);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -149,13 +114,13 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    protected void sendDelayedSMS() {
-        phoneNo = etPhoneNumber.getText().toString();
-        if (etPhoneNumber.length() != 10) {
+    protected void sendDelayedSMS(String phoneNo, String dateText, String timeText, String message) {
+
+        if (phoneNo.length() != 10) {
             // TODO: add an alert message
         }
-        message = etMessage.getText().toString();
-        if (etMessage.getText().toString() == "") {
+
+        if (message.isEmpty()) {
             //TODO: add an alert message
         }
         if (!testSMSPermission()) {
@@ -164,14 +129,14 @@ public class MainActivity extends AppCompatActivity {
         }
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
 
-        String dateText = tvDate.getText().toString();
-        if (dateText == "Choose Date") {
+
+        if (dateText.equals("Choose Date")) {
             //TODO: add an alert message
         }
         String[] date;
         date = dateText.split("/");
-        String timeText = tvTime.getText().toString();
-        if (timeText == "Choose Time") {
+
+        if (timeText.equals("Choose Time")) {
             //TODO: add an alert message
         }
         String[] time;
@@ -206,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (IllegalArgumentException e) {
             throw e;
         }
-        int windowEnd = windowStart + 60*5;
+        int windowEnd = windowStart + 60 * 5;
         Job job = dispatcher.newJobBuilder()
                 .setService(SmsJobService.class)
                 .setTag(SMS_JOB_TAG + extras.getString("job_tag"))
@@ -235,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                 hour, minute, 0);
         int result;
         try {
-            Long timeShift = 3L*60*60*1000;
+            Long timeShift = 3L * 60 * 60 * 1000;
             Long now = System.currentTimeMillis();
             Date d3 = new Date(now);
             Long then = (startTime - now);
@@ -249,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    private Integer getNumOfSmss (String[] array) {
+    private Integer getNumOfSmss(String[] array) {
         for (int i = 0; i < array.length; i++) {
             if (array[i] == "") {
                 return i;

@@ -11,4 +11,7 @@
     <string name="time">Set Time</string>
     <string name="choose_date">Choose Date</string>
     <string name="choose_time">Choose Time</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
