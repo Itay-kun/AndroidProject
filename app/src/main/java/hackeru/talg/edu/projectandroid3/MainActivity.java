@@ -26,6 +26,12 @@ import com.firebase.jobdispatcher.Trigger;
 import java.util.Calendar;
 import java.util.Date;
 
+import hackeru.talg.edu.projectandroid3.InvalidInputDialogs.AlertDialogInvalidDate;
+import hackeru.talg.edu.projectandroid3.InvalidInputDialogs.AlertDialogInvalidMessage;
+import hackeru.talg.edu.projectandroid3.InvalidInputDialogs.AlertDialogInvalidPhoneNumber;
+import hackeru.talg.edu.projectandroid3.InvalidInputDialogs.AlertDialogInvalidTime;
+import hackeru.talg.edu.projectandroid3.InvalidInputDialogs.AlertDialogTooEarlyTime;
+
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;  //TODO: add scrolling option to recyclerView
     //TODO: add remove option for the recyclerView
@@ -115,29 +121,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void sendDelayedSMS(String phoneNo, String dateText, String timeText, String message) {
-
         if (phoneNo.length() != 10) {
-            // TODO: add an alert message
+            AlertDialogInvalidPhoneNumber dialog = new AlertDialogInvalidPhoneNumber();
+            dialog.show(getSupportFragmentManager(), "AlertDialogInvalidPhoneNumber");
+            return;
         }
 
         if (message.isEmpty()) {
-            //TODO: add an alert message
+            AlertDialogInvalidMessage dialog = new AlertDialogInvalidMessage();
+            dialog.show(getSupportFragmentManager(), "AlertDialogInvalidMessage");
+            return;
         }
+
         if (!testSMSPermission()) {
             requestSMSPermission();
             return;
         }
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
 
-
         if (dateText.equals("Choose Date")) {
-            //TODO: add an alert message
+            AlertDialogInvalidDate dialog = new AlertDialogInvalidDate();
+            dialog.show(getSupportFragmentManager(), "AlertDialogInvalidDate");
+            return;
         }
         String[] date;
         date = dateText.split("/");
 
         if (timeText.equals("Choose Time")) {
-            //TODO: add an alert message
+            AlertDialogInvalidTime dialog = new AlertDialogInvalidTime();
+            dialog.show(getSupportFragmentManager(), "AlertDialogInvalidMessage");
+            return;
         }
         String[] time;
         time = timeText.split(":");
@@ -157,7 +170,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             myJob = createJob(dispatcher, myExtrasBundle);
         } catch (IllegalArgumentException e) {
-            //TODO: add an alert message
+            AlertDialogTooEarlyTime dialog = new AlertDialogTooEarlyTime();
+            dialog.show(getSupportFragmentManager(), "AlertDialogTooEarlyTime");
             return;
         }
 
