@@ -19,6 +19,7 @@
 
 
     down vote
+
     <style name="full_screen_dialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
