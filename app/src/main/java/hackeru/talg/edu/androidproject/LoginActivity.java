@@ -40,7 +40,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends MainActivity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -369,6 +369,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return true;
         } else if (id == R.id.action_sms) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_sign_up) {
+            Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
             return true;
         }

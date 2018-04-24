@@ -25,6 +25,7 @@ import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
+import com.google.firebase.FirebaseApp;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        FirebaseApp fbApp = FirebaseApp.initializeApp(this);
 
         requestSMSPermission();
 
@@ -123,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         } else if (id == R.id.action_sms) {
+            return true;
+        } else if (id == R.id.action_sign_up) {
+            Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+            startActivity(intent);
             return true;
         }
 
