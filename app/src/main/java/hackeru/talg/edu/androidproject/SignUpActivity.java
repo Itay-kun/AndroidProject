@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -23,12 +24,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class SignUpActivity extends MainActivity {
+public class SignUpActivity extends AppCompatActivity{
     private FirebaseAuth mAuth;
     private static final String TAG = "EmailPassword";
 
     private AutoCompleteTextView actvEmail;
-    private EditText etPassword;
+    private EditText etPasswordSignUp;
+    private Button btnSignUp;
 
 
     @Override
@@ -37,9 +39,17 @@ public class SignUpActivity extends MainActivity {
         setContentView(R.layout.activity_sign_up);
 
         actvEmail = findViewById(R.id.actvEmail);
-        etPassword = findViewById(R.id.etPasswordSignUp);
+        etPasswordSignUp = findViewById(R.id.etPasswordSignUp);
+        btnSignUp = findViewById(R.id.btnSignUp);
 
         mAuth = FirebaseAuth.getInstance();
+
+        btnSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createAccount(actvEmail.getText().toString(), etPasswordSignUp.getText().toString());
+            }
+        });
     }
 
     @Override
@@ -47,7 +57,7 @@ public class SignUpActivity extends MainActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
+        updateUI(currentUser);
     }
 
     @Override
@@ -118,12 +128,12 @@ public class SignUpActivity extends MainActivity {
             actvEmail.setError(null);
         }
 
-        String password = etPassword.getText().toString();
+        String password = etPasswordSignUp.getText().toString();
         if (TextUtils.isEmpty(password)) {
-            etPassword.setError("Required.");
+            etPasswordSignUp.setError("Required.");
             valid = false;
         } else {
-            etPassword.setError(null);
+            etPasswordSignUp.setError(null);
         }
 
         return valid;
@@ -131,6 +141,9 @@ public class SignUpActivity extends MainActivity {
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
+            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+            startActivity(intent);
+        } else {
             Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
             startActivity(intent);
         }
