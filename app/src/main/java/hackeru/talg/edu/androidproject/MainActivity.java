@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -18,6 +19,7 @@ import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -25,8 +27,13 @@ import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -45,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
     private String[] smsScheduleList;
 
+    private Button btnLogout;
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         requestSMSPermission();
 
         recyclerView = findViewById(R.id.mRecyclerView);
+        btnLogout = findViewById(R.id.btnLogout);
 
         smsScheduleList = new String[9];
         for (int i = 0; i < smsScheduleList.length; i++) {
@@ -82,6 +93,13 @@ public class MainActivity extends AppCompatActivity {
                 int height = metrics.heightPixels;
                 dialogFragment.getDialog().getWindow().setLayout((6 * width)/7, (4 * height)/5);*/
                 dialogFragment.show(getSupportFragmentManager(), "smsDialogFrag");
+            }
+        });
+
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signOut();
             }
         });
     }
@@ -271,10 +289,45 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == MY_PERMISSIONS_REQUEST_SEND_SMS && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Granted", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Granted", Toast.LENGTH_SHORT).show();
 
         } else {
-            Toast.makeText(this, "Not Granted", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Not Granted", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void signOut() {
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser mUser = mAuth.getCurrentUser();
+        if (mUser == null) {
+            Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
+            if (user.getProviderId().equals("password")) {
+                mAuth.signOut();
+            } else if (user.getProviderId().equals("google.com")) {
+                signOutGoogle();
+            } else if (user.getProviderId().equals("facebook.com")) {
+                //signOutFacebook();
+            }
+        }
+        Toast.makeText(this, "Logged Out", Toast.LENGTH_SHORT).show();
+    }
+
+
+
+    private void signOutGoogle() {
+        // Firebase sign out
+        mAuth.signOut();
+
+        // Google sign out
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        updateUI(null);
+                    }
+                });
     }
 }
