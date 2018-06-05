@@ -52,13 +52,13 @@ public class SignUpActivity extends AppCompatActivity{
         });
     }
 
-    @Override
+/*    @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

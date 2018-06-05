@@ -32,6 +32,11 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
 import java.util.Calendar;
@@ -83,6 +88,27 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(mAdapter);
 
+        //June3
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference numOfMessagesRef = database.getReference("numOfMessages");
+
+        //numOfMessagesRef.setValue("Hello, World!");
+
+        numOfMessagesRef.addValueEventListener(new ValueEventListener() {
+            Integer numOfMessages;
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String value = dataSnapshot.getValue(String.class);
+                numOfMessages = Integer.valueOf(value);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
+
+        //June3 \
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,12 +122,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnLogout.setOnClickListener(new View.OnClickListener() {
+/*        btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signOut();
             }
-        });
+        });*/
     }
 
     //TODO:
@@ -140,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_login) {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             return true;
         } else if (id == R.id.action_sms) {
@@ -296,38 +322,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void signOut() {
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser mUser = mAuth.getCurrentUser();
-        if (mUser == null) {
-            Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
-            if (user.getProviderId().equals("password")) {
-                mAuth.signOut();
-            } else if (user.getProviderId().equals("google.com")) {
-                signOutGoogle();
-            } else if (user.getProviderId().equals("facebook.com")) {
-                //signOutFacebook();
-            }
-        }
-        Toast.makeText(this, "Logged Out", Toast.LENGTH_SHORT).show();
-    }
 
-
-
-    private void signOutGoogle() {
-        // Firebase sign out
-        mAuth.signOut();
-
-        // Google sign out
-        mGoogleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        updateUI(null);
-                    }
-                });
-    }
 }

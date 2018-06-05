@@ -1,6 +1,7 @@
 package hackeru.talg.edu.androidproject;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -16,6 +17,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -31,19 +33,26 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserInfo;
 
 public class LoginActivity extends AppCompatActivity{
     private FirebaseAuth mAuth;
     private static final String TAG_EMAIL = "EmailPassword";
     private static final String TAG_GOOGLE = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
+    private static final int NOT_LOGGED_IN = 0;
+    private static final int LOGGED_IN_EMAIL = 1;
+    private static final int LOGGED_IN_GOOGLE = 2;
+
 
     private AutoCompleteTextView actvEmailLogin;
     private EditText etPasswordLogin;
     private Button btnLoginEmail;
     private Button btnLoginGoogle;
-    private Button btnLoginFacebook;
+    private TextView tvLoginStatus;
     private GoogleSignInClient mGoogleSignInClient;
+
+    private static int loggedInWith = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +63,8 @@ public class LoginActivity extends AppCompatActivity{
         etPasswordLogin = findViewById(R.id.etPasswordLogin);
         btnLoginEmail = findViewById(R.id.btnLoginEmail);
         btnLoginGoogle = findViewById(R.id.btnLoginGoogle);
-        btnLoginFacebook = findViewById(R.id.btnLoginFacebook);
+        tvLoginStatus = findViewById(R.id.tvLoginStatus);
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -65,35 +75,47 @@ public class LoginActivity extends AppCompatActivity{
 
         mAuth = FirebaseAuth.getInstance();
 
+        updateUI(mAuth.getCurrentUser());
+
         btnLoginEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signInEmail(actvEmailLogin.getText().toString(), etPasswordLogin.getText().toString());
+                if (loggedInWith != NOT_LOGGED_IN) {
+                    if (loggedInWith != LOGGED_IN_EMAIL) {
+                        return;
+                    } else {
+                        signOut();
+                    }
+                } else {
+                    signInEmail(actvEmailLogin.getText().toString(), etPasswordLogin.getText().toString());
+                }
             }
         });
 
         btnLoginGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signInGoogle();
-            }
-        });
-
-        btnLoginFacebook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
+                if (loggedInWith != NOT_LOGGED_IN) {
+                    if (loggedInWith != LOGGED_IN_GOOGLE) {
+                        return;
+                    } else {
+                        signOut();
+                    }
+                } else {
+                    signInGoogle();
+                }
             }
         });
     }
 
-    @Override
+
+/*    @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
-    }
+        updateUI(currentUser);
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -142,6 +164,7 @@ public class LoginActivity extends AppCompatActivity{
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG_EMAIL, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            loggedInWith = LOGGED_IN_EMAIL;
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -225,6 +248,7 @@ public class LoginActivity extends AppCompatActivity{
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG_GOOGLE, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            loggedInWith = LOGGED_IN_GOOGLE;
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -232,7 +256,6 @@ public class LoginActivity extends AppCompatActivity{
                             Toast.makeText(LoginActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
-
                         // [START_EXCLUDE]
                         //hideProgressDialog();
                         // [END_EXCLUDE]
@@ -242,12 +265,74 @@ public class LoginActivity extends AppCompatActivity{
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
+            tvLoginStatus.setText("Logged in");
+            changeButtonsToLoggedInMode();
+/*            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);*/
         } else {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
+            loggedInWith = NOT_LOGGED_IN;
+            tvLoginStatus.setText("Logged out");
+            changeButtonsToLoggedOutMode();
+/*            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);*/
         }
+    }
+
+    private void changeButtonsToLoggedInMode() {
+            switch (loggedInWith) {
+                case LOGGED_IN_EMAIL:
+                    btnLoginEmail.setText("Logout");
+                    btnLoginGoogle.setText("Already logged in");
+                    btnLoginGoogle.setBackgroundColor(Color.GRAY);
+                    break;
+                case LOGGED_IN_GOOGLE:
+                    btnLoginGoogle.setText("Logout");
+                    btnLoginEmail.setText("Already logged in");
+                    btnLoginEmail.setBackgroundColor(Color.GRAY);
+                    break;
+            }
+    }
+
+    private void changeButtonsToLoggedOutMode() {
+        int colorEmailButton =  Color.parseColor("#43C4A4");
+        int colorGoogleButton =  Color.parseColor("#CF021B");
+        btnLoginEmail.setText("Sign in with email");
+        btnLoginEmail.setBackgroundColor(colorEmailButton);
+        btnLoginGoogle.setText("Sign in with google");
+        btnLoginGoogle.setBackgroundColor(colorGoogleButton);
+    }
+
+    private void signOut() {
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser mUser = mAuth.getCurrentUser();
+        if (mUser == null) {
+            Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
+            if (user.getProviderId().equals("password")) {
+                mAuth.signOut();
+                updateUI(null);
+            } else if (user.getProviderId().equals("google.com")) {
+                signOutGoogle();
+            }
+        }
+        Toast.makeText(this, "Logged Out", Toast.LENGTH_SHORT).show();
+    }
+
+
+    private void signOutGoogle() {
+        // Firebase sign out
+        mAuth.signOut();
+
+        // Google sign out
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        updateUI(null);
+                    }
+                });
     }
 }
 

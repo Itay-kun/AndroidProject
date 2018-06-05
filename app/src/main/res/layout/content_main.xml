@@ -44,7 +44,6 @@
         android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"
         android:background="#d237322d"
-        android:textColor="#f19320"
         android:text="Log Out"
         android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -88,17 +88,14 @@
                 android:textColor="#ffe0bc"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/btnLoginFacebook"
-                style="?android:textAppearanceSmall"
+            <TextView
+                android:id="@+id/tvLoginStatus"
+                android:layout_marginTop="20dp"
+                android:textSize="20sp"
+                android:textAlignment="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:textColor="#ffe0bc"
-                android:text="@string/action_sign_in_facebook"
-                android:background="#3b5997"
-                android:textAllCaps="false"
-                android:textStyle="bold" />
+                android:text="" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
