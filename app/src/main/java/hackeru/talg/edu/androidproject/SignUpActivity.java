@@ -83,6 +83,11 @@ public class SignUpActivity extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
+    public void onBackPressed()
+    {
+        finish();
+    }
+
     private void createAccount(String email, String password) {
         Log.d(TAG, "createAccount:" + email);
         if (!validateForm()) {

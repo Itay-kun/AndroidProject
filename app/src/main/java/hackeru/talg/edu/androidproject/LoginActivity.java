@@ -147,6 +147,11 @@ public class LoginActivity extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
+    public void onBackPressed()
+    {
+        finish();
+    }
+
     private void signInEmail(String email, String password) {
         Log.d(TAG_EMAIL, "signIn:" + email);
         if (!validateForm()) {

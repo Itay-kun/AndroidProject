@@ -44,4 +44,5 @@
     <string name="sign_up">Sign up</string>
     <string name="action_sign_up">Sign up</string>
     <string name="title_activity_main">Schedule SMS</string>
+    <string name="logout">Logout</string>
 </resources>

@@ -1,10 +1,11 @@
 package hackeru.talg.edu.androidproject;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -15,32 +16,28 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogInvalidDate;
 import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogInvalidMessage;
@@ -55,11 +52,17 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
     private static final String SMS_JOB_TAG = "delayed-sms-tag";
 
+
     private String[] smsScheduleList;
 
-    private Button btnLogout;
+    private Button btnLoadList;
 
     private FirebaseAuth mAuth;
+
+    private FirebaseUser currentUser;
+
+    private DatabaseReference messageRef;
+    private static boolean listIsInitialized = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         requestSMSPermission();
 
         recyclerView = findViewById(R.id.mRecyclerView);
-        btnLogout = findViewById(R.id.btnLogout);
+        btnLoadList = findViewById(R.id.btnLoadList);
 
         smsScheduleList = new String[9];
         for (int i = 0; i < smsScheduleList.length; i++) {
@@ -88,26 +91,44 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(mAdapter);
 
-        //June3
+        mAuth = FirebaseAuth.getInstance();
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference numOfMessagesRef = database.getReference("numOfMessages");
-
-        //numOfMessagesRef.setValue("Hello, World!");
-
-        numOfMessagesRef.addValueEventListener(new ValueEventListener() {
-            Integer numOfMessages;
+        btnLoadList.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                numOfMessages = Integer.valueOf(value);
+            public void onClick(View v) {
+                currentUser = mAuth.getCurrentUser();
+                FirebaseDatabase database;
+                System.out.println("Hello");
+                if (currentUser != null) {
+                    database = FirebaseDatabase.getInstance();
+                    messageRef = database.getReference("message");
+
+
+                    messageRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            //if (listIsInitialized == false) {
+                                Message m = dataSnapshot.getValue(Message.class);
+                                System.out.println(m);
+                                //collectMessages((Map<String, Object>) dataSnapshot.getValue(Message.class));
+                                listIsInitialized = true;
+                            //}
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {}
+                    });
+
+                    mAdapter.notifyDataSetChanged();
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        }
         });
+/*
 
-        //June3 \
+            mAdapter.notifyDataSetChanged();
+            //updateListAndSend("123","123","123","123", false);
+            //removeFromList();
+        }*/
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -131,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //TODO:
-    void doIt(String phoneNumber, String date, String time, String message) {
+    void updateListAndSend(String phoneNumber, String date, String time, String message, boolean send) {
         if (!testSMSPermission()) {
             requestSMSPermission();
             return;
@@ -146,7 +167,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
-        sendDelayedSMS(phoneNumber, date, time, message);
+        if (send == true) {
+            sendDelayedSMS(phoneNumber, date, time, message);
+        }
     }
 
 
@@ -178,6 +201,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        new AlertDialog.Builder(this)
+                .setTitle("Exit")
+                .setMessage("Do you want to leave this app?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        MainActivity.this.finish();
+                    }}
+                )
+                .setNegativeButton(android.R.string.no, null)
+                .show();
     }
 
     protected void sendDelayedSMS(String phoneNo, String dateText, String timeText, String message) {
@@ -236,6 +274,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         dispatcher.mustSchedule(myJob);
+
+        if (currentUser != null) {
+            //add message to database
+            String messageID = messageRef.push().getKey();
+            Message messageDB = new Message(phoneNo, message, dateText, timeText);  //messageDB means message database
+            messageRef.child(messageID).setValue(messageDB);
+        }
     }
 
     public static Job createJob(FirebaseJobDispatcher dispatcher, Bundle extras) {
@@ -296,6 +341,54 @@ public class MainActivity extends AppCompatActivity {
         }
         return array.length;
     }
+
+    private void collectMessages(Map<String,Object> messagesMap) {
+
+        //ArrayList<Long> messagesList = new ArrayList<>();
+        if(messagesMap == null) {
+            return;
+        }
+
+        //iterate through each message, ignoring their messageID
+        for (Map.Entry<String, Object> entry : messagesMap.entrySet()){
+
+            //Get message map
+            Map singleMessage = (Map) entry.getValue();
+            //Get fields and append to list
+            //messagesList.add(singleMessage.get("message"));
+            Message currentMessage = (Message) singleMessage.get("message");
+            updateListAndSend(currentMessage.phoneNumber, currentMessage.messageContent,
+                    currentMessage.date, currentMessage.time, false);
+        }
+
+    }
+
+/*    private void removeFromList(String phoneNumber, String date, String time, String message) {
+        String part1 = "To: " + phoneNumber;
+        String part2 = "at: " + date + " " + time;
+        String part3 = "message: " + message;
+        for (int i = 0; i < smsScheduleList.length; i++) {
+            if (!smsScheduleList[i].isEmpty()) {
+                if (smsScheduleList[i].equals(part1 + ", " + part2 + ", " + part3)) {
+                    smsScheduleList[i] = "";
+                }
+                mAdapter.notifyDataSetChanged();
+                break;
+            }
+        }
+    }*/
+
+/*    private sortList() {
+        for (int i = 0; i < smsScheduleList.length * smsScheduleList.length; i++) {
+            String current;
+            if (!smsScheduleList[i].isEmpty()) {
+                current = smsScheduleList[i];
+                mAdapter.notifyDataSetChanged();
+                break;
+            }
+        }
+        mAdapter.notifyDataSetChanged();
+    }*/
 
     public boolean testSMSPermission() {
         int result = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);

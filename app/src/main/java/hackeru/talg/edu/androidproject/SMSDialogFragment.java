@@ -1,30 +1,23 @@
 package hackeru.talg.edu.androidproject;
 
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.app.DownloadManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.provider.Telephony;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -84,7 +77,7 @@ public class SMSDialogFragment extends DialogFragment {
 
                 MainActivity a = (MainActivity) getActivity();
 
-                a.doIt(phoneNo, dateText, timeText, message);
+                a.updateListAndSend(phoneNo, dateText, timeText, message, true);
 
                 //kill myself(dialog)
                 dismiss();
