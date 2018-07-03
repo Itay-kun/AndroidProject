@@ -26,9 +26,12 @@ import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -88,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(this,
+                LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(mAdapter);
 
         mAuth = FirebaseAuth.getInstance();
@@ -98,20 +102,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 currentUser = mAuth.getCurrentUser();
                 FirebaseDatabase database;
-                System.out.println("Hello");
                 if (currentUser != null) {
                     database = FirebaseDatabase.getInstance();
                     messageRef = database.getReference("message");
-
-
                     messageRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             //if (listIsInitialized == false) {
-                                Message m = dataSnapshot.getValue(Message.class);
-                                System.out.println(m);
-                                //collectMessages((Map<String, Object>) dataSnapshot.getValue(Message.class));
-                                listIsInitialized = true;
+                                collectMessages((Map<String, Object>) dataSnapshot.
+                                        getValue());
+                            //    listIsInitialized = true;
                             //}
                         }
 
@@ -152,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //TODO:
-    void updateListAndSend(String phoneNumber, String date, String time, String message, boolean send) {
+    void updateListAndSend(String phoneNumber, String date, String time, String message,
+                           boolean send) {
         if (!testSMSPermission()) {
             requestSMSPermission();
             return;
@@ -191,12 +192,14 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_login) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
+            finish();
             return true;
         } else if (id == R.id.action_sms) {
             return true;
         } else if (id == R.id.action_sign_up) {
             Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
             startActivity(intent);
+            finish();
             return true;
         }
 
@@ -218,7 +221,8 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    protected void sendDelayedSMS(String phoneNo, String dateText, String timeText, String message) {
+    protected void sendDelayedSMS(String phoneNo, String dateText, String timeText,
+                                  String message) {
         if (phoneNo.length() != 10) {
             AlertDialogInvalidPhoneNumber dialog = new AlertDialogInvalidPhoneNumber();
             dialog.show(getSupportFragmentManager(), "AlertDialogInvalidPhoneNumber");
@@ -235,7 +239,8 @@ public class MainActivity extends AppCompatActivity {
             requestSMSPermission();
             return;
         }
-        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(
+                new GooglePlayDriver(this));
 
         if (dateText.equals("Choose Date")) {
             AlertDialogInvalidDate dialog = new AlertDialogInvalidDate();
@@ -275,11 +280,22 @@ public class MainActivity extends AppCompatActivity {
 
         dispatcher.mustSchedule(myJob);
 
-        if (currentUser != null) {
+        if (mAuth.getCurrentUser() != null) {
+            String personId = "";
+            mAuth = FirebaseAuth.getInstance();
+            FirebaseUser mUser = mAuth.getCurrentUser();
+            for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
+                if (user.getProviderId().equals("password")) {
+                    //TODO: add password login userId
+                } else if (user.getProviderId().equals("google.com")) {
+                    GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+                    personId = acct.getId();
+                }
+            }
             //add message to database
-            String messageID = messageRef.push().getKey();
-            Message messageDB = new Message(phoneNo, message, dateText, timeText);  //messageDB means message database
-            messageRef.child(messageID).setValue(messageDB);
+            String messageID = FirebaseDatabase.getInstance().getReference().push().getKey();
+            Message messageDB = new Message(phoneNo, message, dateText, timeText, personId);  //messageDB means message database
+            FirebaseDatabase.getInstance().getReference().child("message").child(messageID).setValue(messageDB);
         }
     }
 
@@ -351,14 +367,29 @@ public class MainActivity extends AppCompatActivity {
 
         //iterate through each message, ignoring their messageID
         for (Map.Entry<String, Object> entry : messagesMap.entrySet()){
-
+            Message m = new Message();
             //Get message map
-            Map singleMessage = (Map) entry.getValue();
+            Map<String, Object> singleMessage = Map.class.cast(entry.getValue());
             //Get fields and append to list
             //messagesList.add(singleMessage.get("message"));
-            Message currentMessage = (Message) singleMessage.get("message");
-            updateListAndSend(currentMessage.phoneNumber, currentMessage.messageContent,
-                    currentMessage.date, currentMessage.time, false);
+            int count = 0;
+            for (Map.Entry<String, Object> entry2 : singleMessage.entrySet()) {
+                switch (count){
+                    case 0: m.setMessageContent((String) entry2.getValue());
+                            break;
+                    case 1: m.setPhoneNumber((String) entry2.getValue());
+                            break;
+                    case 2: m.setDate((String) entry2.getValue());
+                            break;
+                    case 3: m.setTime((String) entry2.getValue());
+                            break;
+                    case 4: m.setPersonId((String) entry2.getValue());
+                            break;
+                }
+                count++;
+            }
+            updateListAndSend(m.getPhoneNumber(), m.getMessageContent(),
+                    m.getDate(), m.getTime(), false);
         }
 
     }
@@ -392,7 +423,8 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean testSMSPermission() {
         int result = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
-        int phoneStateResult = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+        int phoneStateResult = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.READ_PHONE_STATE);
 
         return result == PackageManager.PERMISSION_GRANTED &&
                 phoneStateResult == PackageManager.PERMISSION_GRANTED;
@@ -401,13 +433,17 @@ public class MainActivity extends AppCompatActivity {
     void requestSMSPermission() {
         long l = 100_000;
         String[] permissions = {Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE};
-        ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS_REQUEST_SEND_SMS);
+        ActivityCompat.requestPermissions(this, permissions,
+                MY_PERMISSIONS_REQUEST_SEND_SMS);
     }
 
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == MY_PERMISSIONS_REQUEST_SEND_SMS && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_SEND_SMS && grantResults[0] ==
+                PackageManager.PERMISSION_GRANTED &&
+                grantResults[1] == PackageManager.PERMISSION_GRANTED) {
             //Toast.makeText(this, "Granted", Toast.LENGTH_SHORT).show();
 
         } else {

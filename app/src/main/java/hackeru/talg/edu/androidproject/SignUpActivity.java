@@ -73,10 +73,12 @@ public class SignUpActivity extends AppCompatActivity{
         } else if (id == R.id.action_sms) {
             Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
             startActivity(intent);
+            finish();
             return true;
         } else if (id == R.id.action_login) {
             Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
             startActivity(intent);
+            finish();
             return true;
         }
 
