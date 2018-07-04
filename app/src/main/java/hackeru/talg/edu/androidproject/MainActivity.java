@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference messageRef;
     private static boolean listIsInitialized = false;
 
+    public static final int MAX_LIST_SIZE = 9;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.mRecyclerView);
         btnLoadList = findViewById(R.id.btnLoadList);
 
-        smsScheduleList = new String[9];
+        smsScheduleList = new String[MAX_LIST_SIZE];
         for (int i = 0; i < smsScheduleList.length; i++) {
             smsScheduleList[i] = "";
         }
@@ -286,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
             FirebaseUser mUser = mAuth.getCurrentUser();
             for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
                 if (user.getProviderId().equals("password")) {
-                    //TODO: add password login userId
+                    personId = user.getUid();
                 } else if (user.getProviderId().equals("google.com")) {
                     GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
                     personId = acct.getId();
@@ -365,8 +367,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        int maxInteration = MAX_LIST_SIZE;
         //iterate through each message, ignoring their messageID
         for (Map.Entry<String, Object> entry : messagesMap.entrySet()){
+            if (maxInteration <= 0) {
+                break;
+            }
             Message m = new Message();
             //Get message map
             Map<String, Object> singleMessage = Map.class.cast(entry.getValue());
@@ -388,38 +394,13 @@ public class MainActivity extends AppCompatActivity {
                 }
                 count++;
             }
+
             updateListAndSend(m.getPhoneNumber(), m.getMessageContent(),
                     m.getDate(), m.getTime(), false);
+            maxInteration--;
         }
 
     }
-
-/*    private void removeFromList(String phoneNumber, String date, String time, String message) {
-        String part1 = "To: " + phoneNumber;
-        String part2 = "at: " + date + " " + time;
-        String part3 = "message: " + message;
-        for (int i = 0; i < smsScheduleList.length; i++) {
-            if (!smsScheduleList[i].isEmpty()) {
-                if (smsScheduleList[i].equals(part1 + ", " + part2 + ", " + part3)) {
-                    smsScheduleList[i] = "";
-                }
-                mAdapter.notifyDataSetChanged();
-                break;
-            }
-        }
-    }*/
-
-/*    private sortList() {
-        for (int i = 0; i < smsScheduleList.length * smsScheduleList.length; i++) {
-            String current;
-            if (!smsScheduleList[i].isEmpty()) {
-                current = smsScheduleList[i];
-                mAdapter.notifyDataSetChanged();
-                break;
-            }
-        }
-        mAdapter.notifyDataSetChanged();
-    }*/
 
     public boolean testSMSPermission() {
         int result = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
