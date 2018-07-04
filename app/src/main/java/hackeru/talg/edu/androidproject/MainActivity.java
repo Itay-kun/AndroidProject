@@ -1,6 +1,7 @@
 package hackeru.talg.edu.androidproject;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -194,14 +195,12 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_login) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
-            finish();
             return true;
         } else if (id == R.id.action_sms) {
             return true;
         } else if (id == R.id.action_sign_up) {
             Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
             startActivity(intent);
-            finish();
             return true;
         }
 
@@ -216,7 +215,8 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage("Do you want to leave this app?")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        MainActivity.this.finish();
+                        finish();
+                        System.exit(0);
                     }}
                 )
                 .setNegativeButton(android.R.string.no, null)
@@ -421,15 +421,6 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == MY_PERMISSIONS_REQUEST_SEND_SMS && grantResults[0] ==
-                PackageManager.PERMISSION_GRANTED &&
-                grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-            //Toast.makeText(this, "Granted", Toast.LENGTH_SHORT).show();
-
-        } else {
-            //Toast.makeText(this, "Not Granted", Toast.LENGTH_SHORT).show();
-        }
     }
 
 

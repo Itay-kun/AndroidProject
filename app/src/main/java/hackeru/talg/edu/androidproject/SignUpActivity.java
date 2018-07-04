@@ -3,10 +3,7 @@ package hackeru.talg.edu.androidproject;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -14,12 +11,10 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -52,14 +47,6 @@ public class SignUpActivity extends AppCompatActivity{
         });
     }
 
-/*    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }*/
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -73,12 +60,10 @@ public class SignUpActivity extends AppCompatActivity{
         } else if (id == R.id.action_sms) {
             Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
             startActivity(intent);
-            finish();
             return true;
         } else if (id == R.id.action_login) {
             Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
             startActivity(intent);
-            finish();
             return true;
         }
 
@@ -87,8 +72,6 @@ public class SignUpActivity extends AppCompatActivity{
 
     public void onBackPressed()
     {
-        Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-        startActivity(intent);
         finish();
     }
 
@@ -97,8 +80,6 @@ public class SignUpActivity extends AppCompatActivity{
         if (!validateForm()) {
             return;
         }
-
-        //showProgressDialog();
 
         // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
