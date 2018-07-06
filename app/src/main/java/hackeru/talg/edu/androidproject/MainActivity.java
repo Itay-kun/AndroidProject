@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
@@ -29,6 +30,8 @@ import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -50,8 +53,7 @@ import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogInvalidTim
 import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogTooEarlyTime;
 
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView recyclerView;  //TODO: add scrolling option to recyclerView
-    //TODO: add remove option for the recyclerView
+    private RecyclerView recyclerView;
     private RecyclerView.Adapter mAdapter;
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
     private static final String SMS_JOB_TAG = "delayed-sms-tag";
@@ -61,12 +63,13 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btnLoadList;
 
+    private Button btnAddMessage;
+
     private FirebaseAuth mAuth;
 
     private FirebaseUser currentUser;
 
     private DatabaseReference messageRef;
-    private static boolean listIsInitialized = false;
 
     public static final int MAX_LIST_SIZE = 9;
 
@@ -83,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.mRecyclerView);
         btnLoadList = findViewById(R.id.btnLoadList);
+        btnAddMessage = findViewById(R.id.btnAddMessage);
 
         smsScheduleList = new String[MAX_LIST_SIZE];
         for (int i = 0; i < smsScheduleList.length; i++) {
@@ -103,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         btnLoadList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                clearList(smsScheduleList);
                 currentUser = mAuth.getCurrentUser();
                 FirebaseDatabase database;
                 if (currentUser != null) {
@@ -111,11 +116,8 @@ public class MainActivity extends AppCompatActivity {
                     messageRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            //if (listIsInitialized == false) {
                                 collectMessages((Map<String, Object>) dataSnapshot.
                                         getValue());
-                            //    listIsInitialized = true;
-                            //}
                         }
 
                         @Override
@@ -126,15 +128,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         });
-/*
 
-            mAdapter.notifyDataSetChanged();
-            //updateListAndSend("123","123","123","123", false);
-            //removeFromList();
-        }*/
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        btnAddMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DialogFragment dialogFragment = new SMSDialogFragment();
@@ -146,12 +141,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-/*        btnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOut();
-            }
-        });*/
+    }
+
+    private void clearList(String[] list) {
+        for (int i = 0; i < MAX_LIST_SIZE; i++) {
+            list[i] = "";
+        }
     }
 
     //TODO:
@@ -361,8 +356,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void collectMessages(Map<String,Object> messagesMap) {
-
-        //ArrayList<Long> messagesList = new ArrayList<>();
         if(messagesMap == null) {
             return;
         }
@@ -394,7 +387,19 @@ public class MainActivity extends AppCompatActivity {
                 }
                 count++;
             }
-
+            String personId = "";
+            FirebaseUser mUser = mAuth.getCurrentUser();
+            for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
+                if (user.getProviderId().equals("password")) {
+                    personId = user.getUid();
+                } else if (user.getProviderId().equals("google.com")) {
+                    GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+                    personId = acct.getId();
+                }
+            }
+            if(!personId.equals(m.personId)) {
+                continue;
+            }
             updateListAndSend(m.getPhoneNumber(), m.getMessageContent(),
                     m.getDate(), m.getTime(), false);
             maxInteration--;
@@ -422,6 +427,4 @@ public class MainActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
-
 }

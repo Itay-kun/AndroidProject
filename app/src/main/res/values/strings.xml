@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AndroidProject</string>
+    <string name="app_name">click here for menu ---></string>
     <string name="action_login">Login</string>
     <string name="logo">Logo</string>
     <string name="add">Add</string>
@@ -45,4 +45,5 @@
     <string name="action_sign_up">Sign up</string>
     <string name="title_activity_main">Schedule SMS</string>
     <string name="logout">Logout</string>
+    <string name="back">Back</string>
 </resources>

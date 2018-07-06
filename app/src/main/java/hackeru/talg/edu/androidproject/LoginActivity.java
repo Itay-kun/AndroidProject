@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity{
     private EditText etPasswordLogin;
     private Button btnLoginEmail;
     private Button btnLoginGoogle;
+    private Button btnBack;
     private TextView tvLoginStatus;
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -57,6 +58,8 @@ public class LoginActivity extends AppCompatActivity{
         etPasswordLogin = findViewById(R.id.etPasswordLogin);
         btnLoginEmail = findViewById(R.id.btnLoginEmail);
         btnLoginGoogle = findViewById(R.id.btnLoginGoogle);
+        btnBack = findViewById(R.id.btnBack);
+
         tvLoginStatus = findViewById(R.id.tvLoginStatus);
 
 
@@ -98,6 +101,13 @@ public class LoginActivity extends AppCompatActivity{
                 } else {
                     signInGoogle();
                 }
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
@@ -278,7 +288,7 @@ public class LoginActivity extends AppCompatActivity{
         btnLoginGoogle.setBackgroundColor(colorGoogleButton);
     }
 
-    private void signOut() {
+    public void signOut() {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
         if (mUser == null) {

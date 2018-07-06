@@ -65,16 +65,16 @@
             </android.support.design.widget.TextInputLayout>
 
             <Button
-            android:id="@+id/btnLoginEmail"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColor="#ffe0bc"
-            android:text="@string/action_sign_in_email"
-            android:background="#43c4a4"
-            android:textAllCaps="false"
-            android:textStyle="bold" />
+                android:id="@+id/btnLoginEmail"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="#43c4a4"
+                android:text="@string/action_sign_in_email"
+                android:textAllCaps="false"
+                android:textColor="#ffe0bc"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btnLoginGoogle"
@@ -90,12 +90,24 @@
 
             <TextView
                 android:id="@+id/tvLoginStatus"
-                android:layout_marginTop="20dp"
-                android:textSize="20sp"
-                android:textAlignment="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="" />
+                android:layout_marginTop="20dp"
+                android:text=""
+                android:textAlignment="center"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/btnBack"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="#000000"
+                android:text="@string/back"
+                android:textAllCaps="false"
+                android:textColor="#ffe0bc"
+                android:textStyle="bold" />
         </LinearLayout>
     </ScrollView>
 

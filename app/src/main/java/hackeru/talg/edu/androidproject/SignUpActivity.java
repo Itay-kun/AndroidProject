@@ -26,6 +26,7 @@ public class SignUpActivity extends AppCompatActivity{
     private AutoCompleteTextView actvEmail;
     private EditText etPasswordSignUp;
     private Button btnSignUp;
+    private Button btnBack;
 
 
     @Override
@@ -36,6 +37,7 @@ public class SignUpActivity extends AppCompatActivity{
         actvEmail = findViewById(R.id.actvEmail);
         etPasswordSignUp = findViewById(R.id.etPasswordSignUp);
         btnSignUp = findViewById(R.id.btnSignUp);
+        btnBack = findViewById(R.id.btnBack);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -43,6 +45,13 @@ public class SignUpActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 createAccount(actvEmail.getText().toString(), etPasswordSignUp.getText().toString());
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }

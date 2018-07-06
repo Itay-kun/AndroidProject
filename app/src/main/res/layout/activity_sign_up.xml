@@ -77,6 +77,18 @@
                 android:textAllCaps="false"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/btnBack"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textColor="#ffe0bc"
+                android:text="@string/back"
+                android:background="#000000"
+                android:textAllCaps="false"
+                android:textStyle="bold" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
