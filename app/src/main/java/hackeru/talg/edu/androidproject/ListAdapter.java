@@ -6,8 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.List;
-
 /**
  * Created by Tal on 01-Apr-18.
  */
@@ -20,10 +18,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     // you provide access to all the views for a data item in a view holder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView datetime;
+        public TextView message;
         public ViewHolder(View v) {
             super(v);
-            datetime = (TextView) v.findViewById(R.id.tvListItemDateTime);
+            message = (TextView) v.findViewById(R.id.tvMessage);
         }
     }
 
@@ -47,7 +45,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, int position) {
         String text = smsScheduleList[position];
         ListItem item = new ListItem(text);
-        holder.datetime.setText(item.getDatetime());
+        holder.message.setText(item.getMessage());
     }
 
     // Return the size of your dataset (invoked by the layout manager)

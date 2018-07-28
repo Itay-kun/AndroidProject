@@ -1,50 +1,46 @@
 package hackeru.talg.edu.androidproject;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.Query;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 
 import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogInvalidDate;
 import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogInvalidMessage;
@@ -54,22 +50,17 @@ import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogTooEarlyTi
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
     private static final String SMS_JOB_TAG = "delayed-sms-tag";
 
 
     private String[] smsScheduleList;
 
-    private Button btnLoadList;
-
     private Button btnAddMessage;
 
     private FirebaseAuth mAuth;
 
-    private FirebaseUser currentUser;
-
-    private DatabaseReference messageRef;
+    private FirebaseRecyclerAdapter adapter;
 
     public static final int MAX_LIST_SIZE = 9;
 
@@ -80,12 +71,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FirebaseApp fbApp = FirebaseApp.initializeApp(this);
+        toolbar.setOverflowIcon(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_menu_white_24dp));
+
+        FirebaseApp.initializeApp(this);
 
         requestSMSPermission();
 
         recyclerView = findViewById(R.id.mRecyclerView);
-        btnLoadList = findViewById(R.id.btnLoadList);
         btnAddMessage = findViewById(R.id.btnAddMessage);
 
         smsScheduleList = new String[MAX_LIST_SIZE];
@@ -93,78 +85,31 @@ public class MainActivity extends AppCompatActivity {
             smsScheduleList[i] = "";
         }
 
-
-        mAdapter = new ListAdapter(smsScheduleList);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this,
                 LinearLayoutManager.VERTICAL));
-        recyclerView.setAdapter(mAdapter);
-
+        recyclerView.setHasFixedSize(true);
         mAuth = FirebaseAuth.getInstance();
 
-        btnLoadList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearList(smsScheduleList);
-                currentUser = mAuth.getCurrentUser();
-                FirebaseDatabase database;
-                if (currentUser != null) {
-                    database = FirebaseDatabase.getInstance();
-                    messageRef = database.getReference("message");
-                    messageRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                collectMessages((Map<String, Object>) dataSnapshot.
-                                        getValue());
-                        }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {}
-                    });
-
-                    mAdapter.notifyDataSetChanged();
-            }
-        }
-        });
+        signOut();
 
         btnAddMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DialogFragment dialogFragment = new SMSDialogFragment();
-/*                DisplayMetrics metrics = getResources().getDisplayMetrics();
-                int width = metrics.widthPixels;
-                int height = metrics.heightPixels;
-                dialogFragment.getDialog().getWindow().setLayout((6 * width)/7, (4 * height)/5);*/
                 dialogFragment.show(getSupportFragmentManager(), "smsDialogFrag");
             }
         });
 
     }
 
-    private void clearList(String[] list) {
-        for (int i = 0; i < MAX_LIST_SIZE; i++) {
-            list[i] = "";
-        }
-    }
-
-    //TODO:
     void updateListAndSend(String phoneNumber, String date, String time, String message,
                            boolean send) {
         if (!testSMSPermission()) {
             requestSMSPermission();
             return;
-        }
-        String part1 = "To: " + phoneNumber;
-        String part2 = "at: " + date + " " + time;
-        String part3 = "message: " + message;
-        for (int i = 0; i < smsScheduleList.length; i++) {
-            if (smsScheduleList[i].isEmpty()) {
-                smsScheduleList[i] = part1 + ", " + part2 + ", " + part3;
-                mAdapter.notifyDataSetChanged();
-                break;
-            }
         }
         if (send == true) {
             sendDelayedSMS(phoneNumber, date, time, message);
@@ -181,12 +126,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_login) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
@@ -278,21 +219,17 @@ public class MainActivity extends AppCompatActivity {
         dispatcher.mustSchedule(myJob);
 
         if (mAuth.getCurrentUser() != null) {
-            String personId = "";
             mAuth = FirebaseAuth.getInstance();
             FirebaseUser mUser = mAuth.getCurrentUser();
-            for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
-                if (user.getProviderId().equals("password")) {
-                    personId = user.getUid();
-                } else if (user.getProviderId().equals("google.com")) {
-                    GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
-                    personId = acct.getId();
-                }
-            }
+            String personId = FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0).getUid();
             //add message to database
             String messageID = FirebaseDatabase.getInstance().getReference().push().getKey();
             Message messageDB = new Message(phoneNo, message, dateText, timeText, personId);  //messageDB means message database
-            FirebaseDatabase.getInstance().getReference().child("message").child(messageID).setValue(messageDB);
+            FirebaseDatabase.getInstance().getReference().child("messages").child(personId).push().setValue(messageDB);
+        } else {
+            String messageID = FirebaseDatabase.getInstance().getReference().push().getKey();
+            Message messageDB = new Message(phoneNo, message, dateText, timeText, "guest");  //messageDB means message database
+            FirebaseDatabase.getInstance().getReference().child("messages").child("guest").push().setValue(messageDB);
         }
     }
 
@@ -355,58 +292,6 @@ public class MainActivity extends AppCompatActivity {
         return array.length;
     }
 
-    private void collectMessages(Map<String,Object> messagesMap) {
-        if(messagesMap == null) {
-            return;
-        }
-
-        int maxInteration = MAX_LIST_SIZE;
-        //iterate through each message, ignoring their messageID
-        for (Map.Entry<String, Object> entry : messagesMap.entrySet()){
-            if (maxInteration <= 0) {
-                break;
-            }
-            Message m = new Message();
-            //Get message map
-            Map<String, Object> singleMessage = Map.class.cast(entry.getValue());
-            //Get fields and append to list
-            //messagesList.add(singleMessage.get("message"));
-            int count = 0;
-            for (Map.Entry<String, Object> entry2 : singleMessage.entrySet()) {
-                switch (count){
-                    case 0: m.setMessageContent((String) entry2.getValue());
-                            break;
-                    case 1: m.setPhoneNumber((String) entry2.getValue());
-                            break;
-                    case 2: m.setDate((String) entry2.getValue());
-                            break;
-                    case 3: m.setTime((String) entry2.getValue());
-                            break;
-                    case 4: m.setPersonId((String) entry2.getValue());
-                            break;
-                }
-                count++;
-            }
-            String personId = "";
-            FirebaseUser mUser = mAuth.getCurrentUser();
-            for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
-                if (user.getProviderId().equals("password")) {
-                    personId = user.getUid();
-                } else if (user.getProviderId().equals("google.com")) {
-                    GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
-                    personId = acct.getId();
-                }
-            }
-            if(!personId.equals(m.personId)) {
-                continue;
-            }
-            updateListAndSend(m.getPhoneNumber(), m.getMessageContent(),
-                    m.getDate(), m.getTime(), false);
-            maxInteration--;
-        }
-
-    }
-
     public boolean testSMSPermission() {
         int result = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
         int phoneStateResult = ActivityCompat.checkSelfPermission(this,
@@ -426,5 +311,75 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public void signOut() {
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser mUser = mAuth.getCurrentUser();
+        if (mUser == null) {
+            return;
+        }
+        for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
+            mAuth.signOut();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        initializeRecyclerAdapter();
+        adapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
+    private void initializeRecyclerAdapter(){
+        FirebaseUser user = mAuth.getCurrentUser();
+        String uid = "guest";
+        if (user != null){
+            uid = FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0).getUid();
+        }
+        Query query = FirebaseDatabase.getInstance()
+                .getReference()
+                .child("messages")
+                .child(uid)
+                .limitToLast(7);
+
+        FirebaseRecyclerOptions<Message> options =
+                new FirebaseRecyclerOptions.Builder<Message>()
+                        .setQuery(query, Message.class)
+                        .build();
+
+
+        adapter = new FirebaseRecyclerAdapter<Message, ListAdapter.ViewHolder>(options) {
+            @Override
+            public ListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.list_item, parent, false);
+
+                return new ListAdapter.ViewHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(ListAdapter.ViewHolder holder, int position, Message model) {
+                final String m = model.getMessageContent() + "\nto: " + model.getPhoneNumber()
+                        + ", at: " + model.getDate() + " " + model.getTime();
+
+                holder.message.setText(m);
+            }
+
+            @Override
+            public void onDataChanged() {
+                recyclerView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onError(DatabaseError e) {
+            }
+        };
     }
 }

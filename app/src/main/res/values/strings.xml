@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">click here for menu ---></string>
+    <string name="app_name">SMS delay</string>
     <string name="action_login">Login</string>
     <string name="logo">Logo</string>
     <string name="add">Add</string>

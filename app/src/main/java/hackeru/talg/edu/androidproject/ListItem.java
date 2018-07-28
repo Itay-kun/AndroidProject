@@ -1,17 +1,17 @@
 package hackeru.talg.edu.androidproject;
 
 public class ListItem {
-    private String datetime;
+    private String message;
 
-    public ListItem(String datetime) {
-        this.datetime = datetime;
+    public ListItem(String message) {
+        this.message = message;
     }
 
-    public String getDatetime() {
-        return datetime;
+    public String getMessage() {
+        return message;
     }
 
-    public void setDatetime(String datetime) {
-        this.datetime = datetime;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
