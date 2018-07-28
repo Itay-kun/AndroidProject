@@ -1,5 +1,6 @@
 package hackeru.talg.edu.androidproject;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ public class LoginActivity extends AppCompatActivity{
     private Button btnBack;
     private TextView tvLoginStatus;
     private GoogleSignInClient mGoogleSignInClient;
+    private ProgressDialog progressBar;
 
     private static int loggedInWith = 0;
 
@@ -74,6 +76,12 @@ public class LoginActivity extends AppCompatActivity{
 
         updateUI(mAuth.getCurrentUser());
 
+        progressBar = new ProgressDialog(this);
+        progressBar.setTitle("Processing...");
+        progressBar.setMessage("Please wait...");
+        progressBar.setCancelable(false);
+        progressBar.setIndeterminate(true);
+
         btnLoginEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,6 +92,7 @@ public class LoginActivity extends AppCompatActivity{
                         signOut();
                     }
                 } else {
+                    progressBar.show();
                     signInEmail(actvEmailLogin.getText().toString(), etPasswordLogin.getText().toString());
                 }
             }
@@ -99,11 +108,11 @@ public class LoginActivity extends AppCompatActivity{
                         signOut();
                     }
                 } else {
+                    progressBar.show();
                     signInGoogle();
                 }
             }
         });
-
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,6 +153,7 @@ public class LoginActivity extends AppCompatActivity{
     private void signInEmail(String email, String password) {
         Log.d(TAG_EMAIL, "signIn:" + email);
         if (!validateForm()) {
+            progressBar.dismiss();
             return;
         }
 
@@ -156,12 +166,14 @@ public class LoginActivity extends AppCompatActivity{
                             Log.d(TAG_EMAIL, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             loggedInWith = LOGGED_IN_EMAIL;
+                            progressBar.dismiss();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG_EMAIL, "signInWithEmail:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            progressBar.dismiss();
                             updateUI(null);
                         }
 
@@ -239,11 +251,13 @@ public class LoginActivity extends AppCompatActivity{
                             Log.d(TAG_GOOGLE, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             loggedInWith = LOGGED_IN_GOOGLE;
+                            progressBar.dismiss();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG_GOOGLE, "signInWithCredential:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
+                            progressBar.dismiss();
                             updateUI(null);
                         }
                         // [START_EXCLUDE]
@@ -268,11 +282,13 @@ public class LoginActivity extends AppCompatActivity{
             switch (loggedInWith) {
                 case LOGGED_IN_EMAIL:
                     btnLoginEmail.setText("Logout");
+                    btnLoginEmail.setBackgroundColor(Color.BLUE);
                     btnLoginGoogle.setText("Already logged in");
                     btnLoginGoogle.setBackgroundColor(Color.GRAY);
                     break;
                 case LOGGED_IN_GOOGLE:
                     btnLoginGoogle.setText("Logout");
+                    btnLoginGoogle.setBackgroundColor(Color.BLUE);
                     btnLoginEmail.setText("Already logged in");
                     btnLoginEmail.setBackgroundColor(Color.GRAY);
                     break;
