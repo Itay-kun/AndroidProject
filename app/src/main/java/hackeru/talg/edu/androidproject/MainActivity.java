@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(
                 new GooglePlayDriver(this));
 
-        if (dateText.equals("Choose Date")) {
+        if (dateText.equals("")) {
             AlertDialogInvalidDate dialog = new AlertDialogInvalidDate();
             dialog.show(getSupportFragmentManager(), "AlertDialogInvalidDate");
             return;
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         String[] date;
         date = dateText.split("/");
 
-        if (timeText.equals("Choose Time")) {
+        if (timeText.equals("")) {
             AlertDialogInvalidTime dialog = new AlertDialogInvalidTime();
             dialog.show(getSupportFragmentManager(), "AlertDialogInvalidMessage");
             return;
