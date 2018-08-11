@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SMS delay</string>
+    <string name="app_name">SMS Scheduler</string>
     <string name="action_login">Login/Logout</string>
     <string name="logo">Logo</string>
     <string name="add">Add</string>

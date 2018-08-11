@@ -161,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void sendDelayedSMS(String phoneNo, String dateText, String timeText,
                                   String message) {
+        phoneNo = phoneNo.replaceAll("\\D", "");
         if (phoneNo.length() != 10) {
             AlertDialogInvalidPhoneNumber dialog = new AlertDialogInvalidPhoneNumber();
             dialog.show(getSupportFragmentManager(), "AlertDialogInvalidPhoneNumber");
@@ -328,13 +329,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         initializeRecyclerAdapter();
-        adapter.startListening();
+        if (mAuth.getCurrentUser() != null) {
+            adapter.startListening();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        adapter.stopListening();
+        if (mAuth.getCurrentUser() != null) {
+            adapter.stopListening();
+        }
     }
 
     private void initializeRecyclerAdapter(){
@@ -342,6 +347,8 @@ public class MainActivity extends AppCompatActivity {
         String uid = "guest";
         if (user != null){
             uid = FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0).getUid();
+        } else {
+            return;
         }
         Query query = FirebaseDatabase.getInstance()
                 .getReference()

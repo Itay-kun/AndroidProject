@@ -31,6 +31,26 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <Button
+                android:id="@+id/btnLoginGoogle"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="#cf021b"
+                android:text="@string/action_sign_in_google"
+                android:textAllCaps="false"
+                android:textColor="#ffe0bc"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/or"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="or:"
+                android:textSize="20sp" />
+
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -72,18 +92,6 @@
                 android:layout_marginTop="16dp"
                 android:background="#43c4a4"
                 android:text="@string/action_sign_in_email"
-                android:textAllCaps="false"
-                android:textColor="#ffe0bc"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btnLoginGoogle"
-                style="?android:textAppearanceSmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="#cf021b"
-                android:text="@string/action_sign_in_google"
                 android:textAllCaps="false"
                 android:textColor="#ffe0bc"
                 android:textStyle="bold" />
