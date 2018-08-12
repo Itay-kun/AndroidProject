@@ -62,12 +62,10 @@ public class SMSDialogFragment extends DialogFragment {
 
 
 
-        FloatingActionButton fab =  v.findViewById(R.id.fabAddSms);
-        fab.setOnClickListener(new View.OnClickListener() {
+        Button addSMSBtn = v.findViewById(R.id.addSMSBtn);
+        addSMSBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-
-
+            public void onClick(View v) {
                 String phoneNo = etPhoneNumber.getText().toString();
 
                 String message = etMessage.getText().toString();

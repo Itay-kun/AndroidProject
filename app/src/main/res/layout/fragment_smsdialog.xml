@@ -101,35 +101,9 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnTime" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabAddSms"
-        android:layout_width="wrap_content"
-        android:src="@drawable/ic_add_white"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTime"
 
 
-
-        />
-
-    <Button
-        android:id="@+id/bugfixer"
-        android:layout_width="wrap_content"
-        android:text="b"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:visibility="invisible"
-
-     app:layout_constraintTop_toBottomOf="@+id/fabAddSms"
-
-
-
-        />
+        <!--/>-->
 
     <android.support.constraint.Guideline
         android:id="@+id/vGuideline65"
@@ -151,5 +125,15 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.4" />
+
+    <Button
+        android:id="@+id/addSMSBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="Add SMS"
+        android:background="#c77d40"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTime" />
 
 </android.support.constraint.ConstraintLayout>
