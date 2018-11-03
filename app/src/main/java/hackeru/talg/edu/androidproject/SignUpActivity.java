@@ -96,16 +96,17 @@ public class SignUpActivity extends AppCompatActivity{
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(SignUpActivity.this, "Authentication failed.",
+                            Toast.makeText(SignUpActivity.this, "Registration was successful",
                                     Toast.LENGTH_SHORT).show();
-                            updateUI(null);
+                            //updateUI(user);
+                        } else {
+                            //Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Exception err = task.getException();
+                            Toast.makeText(SignUpActivity.this, err.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                            //updateUI(null);
                         }
 
                         // [START_EXCLUDE]
@@ -138,13 +139,13 @@ public class SignUpActivity extends AppCompatActivity{
         return valid;
     }
 
-    private void updateUI(FirebaseUser user) {
+/*    private void updateUI(FirebaseUser user) {
         if (user != null) {
             Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
             startActivity(intent);
         } else {
-            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-            startActivity(intent);
+            *//*Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+            startActivity(intent);*//*
         }
-    }
+    }*/
 }
