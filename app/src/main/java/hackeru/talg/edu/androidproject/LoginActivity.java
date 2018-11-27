@@ -167,13 +167,15 @@ public class LoginActivity extends AppCompatActivity{
                             FirebaseUser user = mAuth.getCurrentUser();
                             loggedInWith = LOGGED_IN_EMAIL;
                             progressBar.dismiss();
+                            Toast.makeText(LoginActivity.this, "Login was successful",
+                                    Toast.LENGTH_SHORT).show();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG_EMAIL, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
                             progressBar.dismiss();
+                            Exception err = task.getException();
+                            Toast.makeText(LoginActivity.this, err.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
 
@@ -252,12 +254,14 @@ public class LoginActivity extends AppCompatActivity{
                             FirebaseUser user = mAuth.getCurrentUser();
                             loggedInWith = LOGGED_IN_GOOGLE;
                             progressBar.dismiss();
+                            Toast.makeText(LoginActivity.this, "Login was successful",
+                                    Toast.LENGTH_SHORT).show();
                             updateUI(user);
                         } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG_GOOGLE, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
                             progressBar.dismiss();
+                            Exception err = task.getException();
+                            Toast.makeText(LoginActivity.this, err.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
                         // [START_EXCLUDE]

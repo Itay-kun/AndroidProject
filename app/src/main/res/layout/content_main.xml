@@ -38,11 +38,11 @@
 
     <Button
         android:id="@+id/btnAddMessage"
-        android:layout_width="wrap_content"
+        android:layout_width="20mm"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:background="#d6972a"
+        android:background="@drawable/button"
         android:text="Add a message"
         android:textColor="#2b241d"
         android:textAllCaps="false"

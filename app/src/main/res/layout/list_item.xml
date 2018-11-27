@@ -16,6 +16,8 @@
         android:textColor="#b66542"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:padding="8dp"
+        android:background="#000000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.471"
         app:layout_constraintStart_toStartOf="parent"

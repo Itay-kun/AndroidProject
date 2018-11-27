@@ -39,7 +39,7 @@
     <string name="action_sms">Send SMS</string>
     <string name="action_sign_in_google">Sign in with Google</string>
     <string name="action_sign_in_facebook">Sign in with Facebook</string>
-    <string name="choose_from_contacts">Choose phone number from Contacts</string>
+    <string name="choose_from_contacts">Contacts</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
     <string name="sign_up">Sign up</string>
     <string name="action_sign_up">Sign up</string>
