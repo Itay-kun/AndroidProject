@@ -36,18 +36,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvListTitle" />
 
-    <Button
-        android:id="@+id/btnAddMessage"
-        android:layout_width="20mm"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabAddMessage"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/button"
-        android:text="Add a message"
-        android:textColor="#2b241d"
-        android:textAllCaps="false"
+        android:clickable="true"
+        app:srcCompat="@drawable/ic_sms_white"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"  />
 
 
 </android.support.constraint.ConstraintLayout>

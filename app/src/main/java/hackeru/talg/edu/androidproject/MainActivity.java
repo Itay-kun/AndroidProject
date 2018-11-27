@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String[] smsScheduleList;
 
-    private Button btnAddMessage;
+    private FloatingActionButton fabAddMessage;
 
     private FirebaseAuth mAuth;
 
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         requestSMSPermission();
 
         recyclerView = findViewById(R.id.mRecyclerView);
-        btnAddMessage = findViewById(R.id.btnAddMessage);
+        fabAddMessage = findViewById(R.id.fabAddMessage);
 
         smsScheduleList = new String[MAX_LIST_SIZE];
         for (int i = 0; i < smsScheduleList.length; i++) {
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         signOut();
 
-        btnAddMessage.setOnClickListener(new View.OnClickListener() {
+        fabAddMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DialogFragment dialogFragment = new SMSDialogFragment();
