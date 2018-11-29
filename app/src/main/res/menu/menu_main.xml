@@ -20,4 +20,9 @@
         android:orderInCategory="100"
         android:title="@string/sign_up"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_intro"
+        android:orderInCategory="100"
+        android:title="App Intro"
+        app:showAsAction="never" />
 </menu>

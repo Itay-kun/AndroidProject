@@ -46,4 +46,7 @@
     <string name="title_activity_main">Schedule SMS</string>
     <string name="logout">Logout</string>
     <string name="back">Back</string>
+    <string name="title_activity_intro">IntroActivity</string>
+    <string name="app_intro"><u>App Intro</u></string>
+    <string name="intro_activity">IntroActivity</string>
 </resources>

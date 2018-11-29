@@ -1,6 +1,8 @@
 package hackeru.talg.edu.androidproject;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -44,7 +47,8 @@ public class LoginActivity extends AppCompatActivity{
     private EditText etPasswordLogin;
     private Button btnLoginEmail;
     private Button btnLoginGoogle;
-    private Button btnBack;
+    private Button btnSendSMSPage;
+    private Button btnRegister;
     private TextView tvLoginStatus;
     private GoogleSignInClient mGoogleSignInClient;
     private ProgressDialog progressBar;
@@ -60,7 +64,8 @@ public class LoginActivity extends AppCompatActivity{
         etPasswordLogin = findViewById(R.id.etPasswordLogin);
         btnLoginEmail = findViewById(R.id.btnLoginEmail);
         btnLoginGoogle = findViewById(R.id.btnLoginGoogle);
-        btnBack = findViewById(R.id.btnBack);
+        btnSendSMSPage = findViewById(R.id.btnSendSMSPage);
+        btnRegister = findViewById(R.id.btnRegister);
 
         tvLoginStatus = findViewById(R.id.tvLoginStatus);
 
@@ -113,9 +118,20 @@ public class LoginActivity extends AppCompatActivity{
                 }
             }
         });
-        btnBack.setOnClickListener(new View.OnClickListener() {
+        btnSendSMSPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        btnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+                startActivity(intent);
                 finish();
             }
         });
@@ -123,31 +139,52 @@ public class LoginActivity extends AppCompatActivity{
 
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_login) {
             return true;
         } else if (id == R.id.action_sms) {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
+            finish();
             return true;
         } else if (id == R.id.action_sign_up) {
             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
+            finish();
+            return true;
+        } else if (id == R.id.action_intro) {
+            Intent intent = new Intent(LoginActivity.this, IntroActivity.class);
+            startActivity(intent);
+            finish();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
     public void onBackPressed()
     {
-        finish();
+        new AlertDialog.Builder(this)
+                .setTitle("Exit")
+                .setMessage("Do you want to leave this app?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                        System.exit(0);
+                    }}
+                )
+                .setNegativeButton(android.R.string.no, null)
+                .show();
     }
 
     private void signInEmail(String email, String password) {

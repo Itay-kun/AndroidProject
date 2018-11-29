@@ -132,12 +132,19 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_login) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
+            finish();
             return true;
         } else if (id == R.id.action_sms) {
             return true;
         } else if (id == R.id.action_sign_up) {
             Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
             startActivity(intent);
+            finish();
+            return true;
+        } else if (id == R.id.action_intro) {
+            Intent intent = new Intent(MainActivity.this, IntroActivity.class);
+            startActivity(intent);
+            finish();
             return true;
         }
 
