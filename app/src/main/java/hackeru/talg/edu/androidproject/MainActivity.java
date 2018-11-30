@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
     protected void sendDelayedSMS(String phoneNo, String dateText, String timeText,
                                   String message) {
         phoneNo = phoneNo.replaceAll("\\D", "");
-        if (phoneNo.length() != 10) {
+        if (phoneNo.length() < 10 || phoneNo.length() > 13) {
             AlertDialogInvalidPhoneNumber dialog = new AlertDialogInvalidPhoneNumber();
             dialog.show(getSupportFragmentManager(), "AlertDialogInvalidPhoneNumber");
             return;
