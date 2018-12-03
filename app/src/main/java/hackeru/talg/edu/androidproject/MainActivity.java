@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
 
-        signOut();
+        //signOut();
 
         fabAddMessage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -322,16 +322,16 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    public void signOut() {
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser mUser = mAuth.getCurrentUser();
-        if (mUser == null) {
-            return;
-        }
-        for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
-            mAuth.signOut();
-        }
-    }
+//    public void signOut() {
+//        mAuth = FirebaseAuth.getInstance();
+//        FirebaseUser mUser = mAuth.getCurrentUser();
+//        if (mUser == null) {
+//            return;
+//        }
+//        for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
+//            mAuth.signOut();
+//        }
+//    }
 
     @Override
     protected void onStart() {
