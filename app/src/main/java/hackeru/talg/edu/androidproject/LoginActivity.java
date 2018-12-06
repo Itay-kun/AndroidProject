@@ -79,6 +79,17 @@ public class LoginActivity extends AppCompatActivity{
 
         mAuth = FirebaseAuth.getInstance();
 
+        if (mAuth.getCurrentUser() != null) {
+            for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
+                if (user.getProviderId().equals("password")) {
+                    loggedInWith = LOGGED_IN_EMAIL;
+
+                } else if (user.getProviderId().equals("google.com")) {
+                    loggedInWith = LOGGED_IN_GOOGLE;
+                }
+            }
+        }
+
         updateUI(mAuth.getCurrentUser());
 
         progressBar = new ProgressDialog(this);
