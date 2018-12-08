@@ -33,6 +33,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:16.0.1'
     //implementation 'com.firebaseui:firebase-ui-database:4.1.0'
     implementation 'com.firebaseui:firebase-ui-database:3.3.1'
+    implementation 'agency.tango.android:material-intro-screen:0.0.5'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'

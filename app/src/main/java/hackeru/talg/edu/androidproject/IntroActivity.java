@@ -3,47 +3,52 @@ package hackeru.talg.edu.androidproject;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class IntroActivity extends AppCompatActivity {
-    private TextView title;
-    private Button btnLogin;
-    private Button btnSendSms;
+import com.google.firebase.auth.FirebaseAuth;
+
+import agency.tango.materialintroscreen.MaterialIntroActivity;
+import agency.tango.materialintroscreen.SlideFragmentBuilder;
+
+
+public class IntroActivity extends MaterialIntroActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_intro);
 
-        title = findViewById(R.id.tv_title);
-        btnLogin = findViewById(R.id.btnLoginPage);
-        btnSendSms = findViewById(R.id.btnSendSMSPage);
+        addSlide(new SlideFragmentBuilder()
+                        .backgroundColor(R.color.colorPrimary)
+                        .buttonsColor(R.color.colorAccent)
+                        .image(agency.tango.materialintroscreen.R.drawable.ic_next)
+                        .title("Welcome to SMS Scheduler!")
+                        .description("This app allows you to send scheduled SMS's")
+                        .build());
 
-        title.getPaint().setUnderlineText(true);
+        addSlide(new SlideFragmentBuilder()
+                        .backgroundColor(R.color.colorPrimary)
+                        .buttonsColor(R.color.colorAccent)
+                        .image(R.drawable.ic_sms_white)
+                        .description("Click on the icon above to send a delayed SMS")
+                        .build());
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(IntroActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+        addSlide(new SlideFragmentBuilder()
+                .backgroundColor(R.color.colorPrimary)
+                .buttonsColor(R.color.colorAccent)
+                .image(R.drawable.ic_menu_white_24dp)
+                .description("Click on the icon above in the toolbar to open the menu")
+                .build());
 
-        btnSendSms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(IntroActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+        addSlide(new SlideFragmentBuilder()
+                .backgroundColor(R.color.colorPrimary)
+                .buttonsColor(R.color.colorAccent)
+                .image(R.drawable.login)
+                .description("In order to see the list of sent SMS's you should login")
+                .build());
     }
 
     @Override
@@ -93,5 +98,20 @@ public class IntroActivity extends AppCompatActivity {
                 )
                 .setNegativeButton(android.R.string.no, null)
                 .show();
+    }
+
+    @Override
+    public void onFinish() {
+        super.onFinish();
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 }
