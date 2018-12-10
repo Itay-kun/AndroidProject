@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //progressBar.show();
+        progressBar.show();
         initializeRecyclerAdapter();
         if (mAuth.getCurrentUser() != null) {
             adapter.startListening();
@@ -388,10 +388,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChanged() {
                 recyclerView.setAdapter(adapter);
+                progressBar.dismiss();
             }
 
             @Override
             public void onError(DatabaseError e) {
+                progressBar.dismiss();
             }
         };
     }
