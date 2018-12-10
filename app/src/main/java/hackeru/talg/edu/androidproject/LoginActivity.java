@@ -199,7 +199,6 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     private void signInEmail(String email, String password) {
-        Log.d(TAG_EMAIL, "signIn:" + email);
         if (!validateForm()) {
             progressBar.dismiss();
             return;
@@ -211,13 +210,15 @@ public class LoginActivity extends AppCompatActivity{
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG_EMAIL, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             loggedInWith = LOGGED_IN_EMAIL;
                             progressBar.dismiss();
                             Toast.makeText(LoginActivity.this, "Login was successful",
                                     Toast.LENGTH_SHORT).show();
                             updateUI(user);
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
                         } else {
                             // If sign in fails, display a message to the user.
                             progressBar.dismiss();
@@ -226,13 +227,6 @@ public class LoginActivity extends AppCompatActivity{
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
-
-                        // [START_EXCLUDE]
-                        if (!task.isSuccessful()) {
-                            //mStatusTextView.setText(R.string.auth_failed);
-                        }
-                        //hideProgressDialog();
-                        // [END_EXCLUDE]
                     }
                 });
     }
@@ -305,6 +299,9 @@ public class LoginActivity extends AppCompatActivity{
                             Toast.makeText(LoginActivity.this, "Login was successful",
                                     Toast.LENGTH_SHORT).show();
                             updateUI(user);
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
                         } else {
                             progressBar.dismiss();
                             Exception err = task.getException();

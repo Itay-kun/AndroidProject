@@ -1,6 +1,7 @@
 package hackeru.talg.edu.androidproject;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,6 +32,8 @@ public class SignUpActivity extends AppCompatActivity{
     private Button btnSignUp;
     private Button btnSendSMSPage;
 
+    private ProgressDialog progressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +47,16 @@ public class SignUpActivity extends AppCompatActivity{
 
         mAuth = FirebaseAuth.getInstance();
 
+        progressBar = new ProgressDialog(this);
+        progressBar.setTitle("Processing...");
+        progressBar.setMessage("Please wait...");
+        progressBar.setCancelable(false);
+        progressBar.setIndeterminate(true);
+
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressBar.show();
                 createAccount(actvEmail.getText().toString(), etPasswordSignUp.getText().toString());
             }
         });
@@ -115,29 +125,21 @@ public class SignUpActivity extends AppCompatActivity{
         if (!validateForm()) {
             return;
         }
-
-        // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(SignUpActivity.this, "Registration was successful",
                                     Toast.LENGTH_SHORT).show();
-                            //updateUI(user);
+                            signInEmail(actvEmail.getText().toString(), etPasswordSignUp.getText().toString());
                         } else {
-                            //Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            progressBar.dismiss();
                             Exception err = task.getException();
                             Toast.makeText(SignUpActivity.this, err.getMessage(),
                                     Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
                         }
-
-                        // [START_EXCLUDE]
-                        //hideProgressDialog();
-                        // [END_EXCLUDE]
                     }
                 });
         // [END create_user_with_email]
@@ -165,13 +167,30 @@ public class SignUpActivity extends AppCompatActivity{
         return valid;
     }
 
-/*    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-            startActivity(intent);
-        } else {
-            *//*Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-            startActivity(intent);*//*
+    private void signInEmail(String email, String password) {
+        if (!validateForm()) {
+            progressBar.dismiss();
+            return;
         }
-    }*/
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            progressBar.dismiss();
+                            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            progressBar.dismiss();
+                            Exception err = task.getException();
+                        }
+                    }
+                });
+    }
+
 }

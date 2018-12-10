@@ -2,6 +2,7 @@ package hackeru.talg.edu.androidproject;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseRecyclerAdapter adapter;
 
+    private ProgressDialog progressBar;
+
     public static final int MAX_LIST_SIZE = 9;
 
     @Override
@@ -91,10 +94,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(this,
                 LinearLayoutManager.VERTICAL));
         recyclerView.setHasFixedSize(true);
+
+        progressBar = new ProgressDialog(this);
+        progressBar.setTitle("Loading the list...");
+        progressBar.setMessage("Please wait...");
+        progressBar.setCancelable(false);
+        progressBar.setIndeterminate(true);
+
         mAuth = FirebaseAuth.getInstance();
-
-
-        //signOut();
 
         fabAddMessage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -322,20 +329,11 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-//    public void signOut() {
-//        mAuth = FirebaseAuth.getInstance();
-//        FirebaseUser mUser = mAuth.getCurrentUser();
-//        if (mUser == null) {
-//            return;
-//        }
-//        for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
-//            mAuth.signOut();
-//        }
-//    }
 
     @Override
     protected void onStart() {
         super.onStart();
+        //progressBar.show();
         initializeRecyclerAdapter();
         if (mAuth.getCurrentUser() != null) {
             adapter.startListening();
