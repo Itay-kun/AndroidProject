@@ -32,6 +32,18 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/btnRegister"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="#3a7855"
+                android:text="Register"
+                android:textAllCaps="false"
+                android:textColor="#ffe0bc"
+                android:textStyle="bold" />
+
+            <Button
                 android:id="@+id/btnLoginGoogle"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
@@ -105,29 +117,6 @@
                 android:textAlignment="center"
                 android:textSize="20sp" />
 
-            <Button
-            android:id="@+id/btnSendSMSPage"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="#000000"
-            android:text="Send SMS"
-            android:textAllCaps="false"
-            android:textColor="#ffe0bc"
-            android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btnRegister"
-                style="?android:textAppearanceSmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="#3a7855"
-                android:text="Register"
-                android:textAllCaps="false"
-                android:textColor="#ffe0bc"
-                android:textStyle="bold" />
         </LinearLayout>
     </ScrollView>
 

@@ -19,9 +19,9 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundLayerName" value="ic_launcher_background" />
-                                      <entry key="foregroundImage" value="$USER_HOME$/Documents/Temp/menu_icon.png" />
-                                      <entry key="foregroundLayerName" value="ic_menu_book_image" />
-                                      <entry key="outputName" value="ic_menu_book" />
+                                      <entry key="foregroundImage" value="$USER_HOME$/Downloads/Temp/logout.png" />
+                                      <entry key="foregroundLayerName" value="ic_menu_logout_image" />
+                                      <entry key="outputName" value="ic_menu_logout" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -52,7 +52,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/notification/ic_sms_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/communication/ic_contacts_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -63,7 +63,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_sms_white" />
+                            <entry key="outputName" value="ic_contacts" />
                             <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="$USER_HOME$" />
                           </map>

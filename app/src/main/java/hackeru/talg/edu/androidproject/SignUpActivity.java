@@ -30,7 +30,6 @@ public class SignUpActivity extends AppCompatActivity{
     private AutoCompleteTextView actvEmail;
     private EditText etPasswordSignUp;
     private Button btnSignUp;
-    private Button btnSendSMSPage;
 
     private ProgressDialog progressBar;
 
@@ -43,7 +42,6 @@ public class SignUpActivity extends AppCompatActivity{
         actvEmail = findViewById(R.id.actvEmail);
         etPasswordSignUp = findViewById(R.id.etPasswordSignUp);
         btnSignUp = findViewById(R.id.btnSignUp);
-        btnSendSMSPage = findViewById(R.id.btnSendSMSPage);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -61,14 +59,6 @@ public class SignUpActivity extends AppCompatActivity{
             }
         });
 
-        btnSendSMSPage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
     }
 
     @Override
@@ -99,6 +89,22 @@ public class SignUpActivity extends AppCompatActivity{
             startActivity(intent);
             finish();
             return true;
+        } else if (id == R.id.action_logout) {
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Logout")
+                    .setMessage("Do you want to logout?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            MenuManager.signOut(SignUpActivity.this);
+                        }}
+                    )
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -107,6 +113,10 @@ public class SignUpActivity extends AppCompatActivity{
     @Override
     public void onBackPressed()
     {
+        if(progressBar.isShowing()){
+            progressBar.dismiss();
+            return;
+        }
         new AlertDialog.Builder(this)
                 .setTitle("Exit")
                 .setMessage("Do you want to leave this app?")

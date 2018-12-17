@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
@@ -35,20 +36,14 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
 import java.util.Calendar;
 import java.util.Date;
 
-import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogInvalidDate;
-import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogInvalidMessage;
-import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogInvalidPhoneNumber;
-import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogInvalidTime;
-import hackeru.talg.edu.androidproject.InvalidInputDialogs.AlertDialogTooEarlyTime;
+
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -59,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private String[] smsScheduleList;
 
     private FloatingActionButton fabAddMessage;
+
+    private Button btnClearList;
 
     private FirebaseAuth mAuth;
 
@@ -83,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.mRecyclerView);
         fabAddMessage = findViewById(R.id.fabAddMessage);
+        btnClearList = findViewById(R.id.btnClearList);
 
         smsScheduleList = new String[MAX_LIST_SIZE];
         for (int i = 0; i < smsScheduleList.length; i++) {
@@ -108,6 +106,18 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 DialogFragment dialogFragment = new SMSDialogFragment();
                 dialogFragment.show(getSupportFragmentManager(), "smsDialogFrag");
+            }
+        });
+
+        btnClearList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mAuth.getCurrentUser() != null) {
+                    mAuth = FirebaseAuth.getInstance();
+                    FirebaseUser mUser = mAuth.getCurrentUser();
+                    String personId = FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0).getUid();
+                    FirebaseDatabase.getInstance().getReference().child("messages").child(personId).setValue(null);
+                }
             }
         });
 
@@ -153,6 +163,23 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
             return true;
+        } else if (id == R.id.action_logout) {
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Logout")
+                    .setMessage("Do you want to logout?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            MenuManager.signOut(MainActivity.this);
+                            recyclerView.setAdapter(null);
+                        }}
+                    )
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -161,6 +188,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed()
     {
+        if(progressBar.isShowing()){
+            progressBar.dismiss();
+            return;
+        }
         new AlertDialog.Builder(this)
                 .setTitle("Exit")
                 .setMessage("Do you want to leave this app?")
@@ -176,18 +207,6 @@ public class MainActivity extends AppCompatActivity {
 
     protected void sendDelayedSMS(String phoneNo, String dateText, String timeText,
                                   String message) {
-        phoneNo = phoneNo.replaceAll("\\D", "");
-        if (phoneNo.length() < 10 || phoneNo.length() > 13) {
-            AlertDialogInvalidPhoneNumber dialog = new AlertDialogInvalidPhoneNumber();
-            dialog.show(getSupportFragmentManager(), "AlertDialogInvalidPhoneNumber");
-            return;
-        }
-
-        if (message.isEmpty()) {
-            AlertDialogInvalidMessage dialog = new AlertDialogInvalidMessage();
-            dialog.show(getSupportFragmentManager(), "AlertDialogInvalidMessage");
-            return;
-        }
 
         if (!testSMSPermission()) {
             requestSMSPermission();
@@ -196,19 +215,9 @@ public class MainActivity extends AppCompatActivity {
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(
                 new GooglePlayDriver(this));
 
-        if (dateText.equals("")) {
-            AlertDialogInvalidDate dialog = new AlertDialogInvalidDate();
-            dialog.show(getSupportFragmentManager(), "AlertDialogInvalidDate");
-            return;
-        }
         String[] date;
         date = dateText.split("/");
 
-        if (timeText.equals("")) {
-            AlertDialogInvalidTime dialog = new AlertDialogInvalidTime();
-            dialog.show(getSupportFragmentManager(), "AlertDialogInvalidMessage");
-            return;
-        }
         String[] time;
         time = timeText.split(":");
 
@@ -227,8 +236,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             myJob = createJob(dispatcher, myExtrasBundle);
         } catch (IllegalArgumentException e) {
-            AlertDialogTooEarlyTime dialog = new AlertDialogTooEarlyTime();
-            dialog.show(getSupportFragmentManager(), "AlertDialogTooEarlyTime");
             return;
         }
 
@@ -239,13 +246,8 @@ public class MainActivity extends AppCompatActivity {
             FirebaseUser mUser = mAuth.getCurrentUser();
             String personId = FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0).getUid();
             //add message to database
-            String messageID = FirebaseDatabase.getInstance().getReference().push().getKey();
             Message messageDB = new Message(phoneNo, message, dateText, timeText, personId);  //messageDB means message database
             FirebaseDatabase.getInstance().getReference().child("messages").child(personId).push().setValue(messageDB);
-        } else {
-            String messageID = FirebaseDatabase.getInstance().getReference().push().getKey();
-            Message messageDB = new Message(phoneNo, message, dateText, timeText, "guest");  //messageDB means message database
-            FirebaseDatabase.getInstance().getReference().child("messages").child("guest").push().setValue(messageDB);
         }
     }
 
@@ -333,9 +335,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        progressBar.show();
         initializeRecyclerAdapter();
         if (mAuth.getCurrentUser() != null) {
+            progressBar.show();
             adapter.startListening();
         }
     }

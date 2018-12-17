@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -20,7 +21,6 @@ public class IntroActivity extends MaterialIntroActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         addSlide(new SlideFragmentBuilder()
                         .backgroundColor(R.color.colorPrimary)
                         .buttonsColor(R.color.colorAccent)
@@ -78,6 +78,22 @@ public class IntroActivity extends MaterialIntroActivity {
             finish();
             return true;
         } else if (id == R.id.action_intro) {
+            return true;
+        } else if (id == R.id.action_logout) {
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Logout")
+                    .setMessage("Do you want to logout?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            MenuManager.signOut(IntroActivity.this);
+                        }}
+                    )
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
             return true;
         }
 

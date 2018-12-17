@@ -1,6 +1,7 @@
 package hackeru.talg.edu.androidproject;
 
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -19,6 +20,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import static android.app.Activity.RESULT_OK;
 
 
@@ -33,7 +37,7 @@ public class SMSDialogFragment extends DialogFragment {
     private TextView tvTime;
     private Button btnDate;
     private Button btnTime;
-    private Button btnContacts;
+    private FloatingActionButton fabContacts;
 
     private final int REQUEST_CODE=99;
 
@@ -56,7 +60,7 @@ public class SMSDialogFragment extends DialogFragment {
         etMessage = v.findViewById(R.id.etMessage);
         btnDate = v. findViewById(R.id.btnDate);
         btnTime = v. findViewById(R.id.btnTime);
-        btnContacts = v.findViewById(R.id.btnContacts);
+        fabContacts = v.findViewById(R.id.fabContacts);
         tvDate = v. findViewById(R.id.tvDate);
         tvTime = v. findViewById(R.id.tvTime);
 
@@ -74,6 +78,61 @@ public class SMSDialogFragment extends DialogFragment {
                 String timeText = tvTime.getText().toString();
 
                 MainActivity a = (MainActivity) getActivity();
+
+                phoneNo = phoneNo.replaceAll("\\D", "");
+                if (phoneNo.length() < 10 || phoneNo.length() > 13) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title)
+                            .setMessage(R.string.dialog_message_phone)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                    return;
+                }
+
+                if (message.isEmpty()) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title)
+                            .setMessage(R.string.dialog_message_message)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                    return;
+                }
+
+                if (dateText.equals("")) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title)
+                            .setMessage(R.string.dialog_message_date)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                    return;
+                }
+
+                if (timeText.equals("")) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title)
+                            .setMessage(R.string.dialog_message_time)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                    return;
+                }
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+                Date strDate = new Date();
+                Date today = new Date();
+                String dateTime = dateText + " " + timeText;
+                try {
+                    strDate = sdf.parse(dateTime);
+                } catch (Exception e) {
+
+                }
+                if (today.after(strDate)) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.dialog_title)
+                            .setMessage(R.string.dialog_message_too_early)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                    return;
+                }
 
                 a.updateListAndSend(phoneNo, dateText, timeText, message, true);
 
@@ -103,8 +162,7 @@ public class SMSDialogFragment extends DialogFragment {
                 newFragment.show(getChildFragmentManager(), "timePicker");
             }
         });
-
-        btnContacts.setOnClickListener(new View.OnClickListener() {
+        fabContacts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);

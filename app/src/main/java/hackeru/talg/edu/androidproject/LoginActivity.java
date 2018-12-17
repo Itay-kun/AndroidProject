@@ -47,7 +47,6 @@ public class LoginActivity extends AppCompatActivity{
     private EditText etPasswordLogin;
     private Button btnLoginEmail;
     private Button btnLoginGoogle;
-    private Button btnSendSMSPage;
     private Button btnRegister;
     private TextView tvLoginStatus;
     private GoogleSignInClient mGoogleSignInClient;
@@ -64,7 +63,6 @@ public class LoginActivity extends AppCompatActivity{
         etPasswordLogin = findViewById(R.id.etPasswordLogin);
         btnLoginEmail = findViewById(R.id.btnLoginEmail);
         btnLoginGoogle = findViewById(R.id.btnLoginGoogle);
-        btnSendSMSPage = findViewById(R.id.btnSendSMSPage);
         btnRegister = findViewById(R.id.btnRegister);
 
         tvLoginStatus = findViewById(R.id.tvLoginStatus);
@@ -105,7 +103,17 @@ public class LoginActivity extends AppCompatActivity{
                     if (loggedInWith != LOGGED_IN_EMAIL) {
                         return;
                     } else {
-                        signOut();
+                        new AlertDialog.Builder(LoginActivity.this)
+                                .setTitle("Logout")
+                                .setMessage("Do you want to logout?")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        MenuManager.signOut(LoginActivity.this);
+                                        updateUI(mAuth.getCurrentUser());
+                                    }}
+                                )
+                                .setNegativeButton(android.R.string.no, null)
+                                .show();
                     }
                 } else {
                     progressBar.show();
@@ -121,20 +129,22 @@ public class LoginActivity extends AppCompatActivity{
                     if (loggedInWith != LOGGED_IN_GOOGLE) {
                         return;
                     } else {
-                        signOut();
+                        new AlertDialog.Builder(LoginActivity.this)
+                                .setTitle("Logout")
+                                .setMessage("Do you want to logout?")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        MenuManager.signOut(LoginActivity.this);
+                                        updateUI(mAuth.getCurrentUser());
+                                    }}
+                                )
+                                .setNegativeButton(android.R.string.no, null)
+                                .show();
                     }
                 } else {
                     progressBar.show();
                     signInGoogle();
                 }
-            }
-        });
-        btnSendSMSPage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
             }
         });
 
@@ -177,6 +187,23 @@ public class LoginActivity extends AppCompatActivity{
             startActivity(intent);
             finish();
             return true;
+        } else if (id == R.id.action_logout) {
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Logout")
+                    .setMessage("Do you want to logout?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            MenuManager.signOut(LoginActivity.this);
+                            updateUI(mAuth.getCurrentUser());
+                        }}
+                    )
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -185,6 +212,10 @@ public class LoginActivity extends AppCompatActivity{
     @Override
     public void onBackPressed()
     {
+        if(progressBar.isShowing()){
+            progressBar.dismiss();
+            return;
+        }
         new AlertDialog.Builder(this)
                 .setTitle("Exit")
                 .setMessage("Do you want to leave this app?")
@@ -271,7 +302,9 @@ public class LoginActivity extends AppCompatActivity{
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG_GOOGLE, "Google sign in failed", e);
+                if(progressBar.isShowing()){
+                    progressBar.dismiss();
+                }
                 // [START_EXCLUDE]
                 updateUI(null);
                 // [END_EXCLUDE]
@@ -351,39 +384,6 @@ public class LoginActivity extends AppCompatActivity{
         btnLoginEmail.setBackgroundColor(colorEmailButton);
         btnLoginGoogle.setText("Sign in with google");
         btnLoginGoogle.setBackgroundColor(colorGoogleButton);
-    }
-
-    public void signOut() {
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser mUser = mAuth.getCurrentUser();
-        if (mUser == null) {
-            Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        for (UserInfo user: FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
-            if (user.getProviderId().equals("password")) {
-                mAuth.signOut();
-                updateUI(null);
-            } else if (user.getProviderId().equals("google.com")) {
-                signOutGoogle();
-            }
-        }
-        Toast.makeText(this, "Logged Out", Toast.LENGTH_SHORT).show();
-    }
-
-
-    private void signOutGoogle() {
-        // Firebase sign out
-        mAuth.signOut();
-
-        // Google sign out
-        mGoogleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        updateUI(null);
-                    }
-                });
     }
 }
 
